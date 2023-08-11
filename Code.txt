@@ -1,0 +1,116 @@
+/* Use google collab to execute becouse it autamatically fetch the dataset*/
+
+
+#mporting libraries
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sklearn.datasets
+from sklearn.model_selection import train_test_split
+from xgboost import XGBRegressor
+from sklearn import metrics
+from sklearn.datasets import fetch_california_housing
+
+
+#Importing california house price dataset
+data=fetch_california_housing()
+print(data)
+
+
+#Data describing
+print(data.DESCR)
+
+
+#Loading the data set to a panadas DataFrame and printing first 5 rows
+df=pd.DataFrame(data=data.data,columns=data.feature_names)
+df.head()
+
+
+df.shape
+
+#Adding Price column to the dataframe
+df['price']=data.target
+
+data.target
+df.head()
+
+
+#check for missing values
+df.isnull()
+
+
+#stastical measure of the dataframe
+df.describe()
+
+
+#Understanding the correlation b/w various features in the dataset
+#.positive correlation 
+#2.negative correlation
+
+correlation=df.corr()
+
+
+#Constructing heatmap to undestand the correlation
+plt.figure(figsize=(8,8))
+sns.heatmap(correlation,cbar=True,square=True,fmt='.1f',annot=True,annot_kws={'size':8},cmap='Blues')
+
+
+#Splitting the data and price
+X=df.drop(['price'],axis=1)
+Y=df['price']
+
+print(X)
+print(Y)
+
+
+#splitting the data into train and test data
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=2)
+print(X.shape,X_train.shape,X_test.shape,)
+
+
+#XGBoost regressor
+model=XGBRegressor()
+
+#Training the model with x_train
+model.fit(X_train,Y_train)
+
+
+#accuracy for prediction on training data
+training_data_prediction=model.predict(X_train)
+
+print(training_data_prediction)
+
+
+#predicting on training data
+
+#R squared error
+score_1=metrics.r2_score(Y_train,training_data_prediction)
+#Mean squared error
+score_2=metrics.mean_absolute_error(Y_train,training_data_prediction)
+
+print("R squared error:",score_1)
+print("mean absolute error:",score_2)
+
+
+#Visualising the actual value and predicted value
+plt.scatter(Y_train,training_data_prediction)
+plt.xlabel("Avtual price")
+plt.ylabel("Predicted price")
+plt.title("Actual price v/s Predicted price")
+plt.show()
+
+#prediction on test data
+
+#accuracy for prediction on test data
+test_data_prediction=model.predict(X_test)
+
+#R squared error
+score_1=metrics.r2_score(Y_test,test_data_prediction)
+
+#Mean squared error
+score_2=metrics.mean_absolute_error(Y_test,test_data_prediction)
+
+print("R squared error:",score_1)
+print("mean absolute error:",score_2)
